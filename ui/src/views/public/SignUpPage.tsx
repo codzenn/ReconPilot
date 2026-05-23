@@ -1,5 +1,5 @@
 import { FormEvent, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { apiFetch, ApiError } from "../../lib/api";
 
 type SignUpResponse = {
@@ -22,7 +22,6 @@ function strengthScore(password: string) {
 }
 
 export function SignUpPage() {
-  const navigate = useNavigate();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
