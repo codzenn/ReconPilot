@@ -1,0 +1,38 @@
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+*.releaseBackup
+release.properties
+
+# Frontend (React/Vite)
+ui/node_modules/
+ui/dist/
+ui/dist-ssr/
+ui/.eslintcache
+ui/coverage/
+npm-debug.log*
+
+# Generated Frontend assets in Spring Boot
+src/main/resources/static/
+
+# Local Database
+*.mv.db
+*.trace.db
+data/
+data-*/
+
+# IDEs and OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+.trae/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log

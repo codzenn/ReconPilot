@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: reconpilot-app
+    env: docker
+    plan: free
+    region: ohio
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: RG_DB_URL
+        fromDatabase:
+          name: reconpilot-db
+          property: connectionString
+      - key: RG_DB_USERNAME
+        fromDatabase:
+          name: reconpilot-db
+          property: user
+      - key: RG_DB_PASSWORD
+        fromDatabase:
+          name: reconpilot-db
+          property: password
+      - key: RG_DB_DRIVER
+        value: org.postgresql.Driver
+      - key: RG_JWT_SECRET
+        generateValue: true
+      - key: RG_EXPOSE_VERIFICATION_TOKEN
+        value: "false"
+      - key: RG_TOKEN_TTL_MINUTES
+        value: "480"
+
+databases:
+  - name: reconpilot-db
+    plan: free
+    region: ohio
+    databaseName: reconpilot
+    user: reconpilot_user

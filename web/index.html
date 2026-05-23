@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ReconcileGuard</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark">RG</span>
+        <div>
+          <strong>ReconcileGuard</strong>
+          <span>Digital Payments RCA</span>
+        </div>
+      </div>
+      <nav class="nav-list" aria-label="Main">
+        <button class="nav-item active" data-view="dashboard" type="button">Dashboard</button>
+        <button class="nav-item" data-view="cases" type="button">RCA Queue</button>
+        <button class="nav-item" data-view="transactions" type="button">Transactions</button>
+        <button class="nav-item" data-view="audit" type="button">Audit Trail</button>
+      </nav>
+      <div class="operator-box">
+        <label for="operatorId">Operator ID</label>
+        <input id="operatorId" value="ops.peeyush" autocomplete="off">
+        <label for="adminPassword">Password</label>
+        <input id="adminPassword" type="password" value="admin-change-me" autocomplete="current-password">
+        <div class="auth-row">
+          <button id="loginButton" class="secondary-action" type="button">Issue JWT</button>
+          <span id="authStatus">Local token ready</span>
+        </div>
+        <label for="apiToken">API/JWT Token</label>
+        <input id="apiToken" value="dev-token-change-me" autocomplete="off">
+      </div>
+    </aside>
+
+    <main class="content">
+      <header class="topbar">
+        <div>
+          <h1>Payment Reconciliation Workbench</h1>
+          <p>UPI, IMPS, NEFT, and card exceptions with RCA and SLA ownership.</p>
+        </div>
+        <button id="runRecon" class="primary-action" type="button">Run Reconciliation</button>
+      </header>
+
+      <section id="dashboardView" class="view active-view">
+        <div id="metrics" class="metrics-grid"></div>
+        <div class="dashboard-grid">
+          <section class="panel">
+            <div class="panel-head">
+              <h2>Open Cases by Channel</h2>
+              <span id="chartTotal">0 open</span>
+            </div>
+            <div id="channelChart" class="bar-chart"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-head">
+              <h2>Critical RCA Queue</h2>
+              <span>Highest risk first</span>
+            </div>
+            <div id="criticalCases" class="case-list"></div>
+          </section>
+        </div>
+      </section>
+
+      <section id="casesView" class="view">
+        <div class="toolbar">
+          <div>
+            <label for="caseSearch">Search cases</label>
+            <input id="caseSearch" placeholder="UTR, customer, issue">
+          </div>
+          <button id="refreshCases" type="button">Refresh</button>
+        </div>
+        <div id="caseQueue" class="case-table"></div>
+      </section>
+
+      <section id="transactionsView" class="view">
+        <div class="toolbar">
+          <div>
+            <label for="txnSearch">Search transactions</label>
+            <input id="txnSearch" placeholder="UTR, customer, branch">
+          </div>
+          <div>
+            <label for="channelFilter">Channel</label>
+            <select id="channelFilter">
+              <option>ALL</option>
+              <option>UPI</option>
+              <option>IMPS</option>
+              <option>NEFT</option>
+              <option>CARD</option>
+            </select>
+          </div>
+          <div>
+            <label for="riskFilter">Risk</label>
+            <select id="riskFilter">
+              <option>ALL</option>
+              <option>CRITICAL</option>
+              <option>HIGH</option>
+              <option>MEDIUM</option>
+              <option>LOW</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Transaction</th>
+                <th>Channel</th>
+                <th>Amount</th>
+                <th>CBS</th>
+                <th>Switch</th>
+                <th>Gateway</th>
+                <th>Risk</th>
+              </tr>
+            </thead>
+            <tbody id="txnRows"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="auditView" class="view">
+        <div id="auditList" class="audit-list"></div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="/app.js"></script>
+</body>
+</html>
