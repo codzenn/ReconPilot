@@ -117,7 +117,7 @@ public class AuthService {
         ));
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public AuthTokenResponse login(LoginRequest request) {
         String email = normalizeEmail(request.email());
         UserAccount user = userAccountRepository.findByEmailIgnoreCase(email)
