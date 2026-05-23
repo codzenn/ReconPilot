@@ -1,20 +1,14 @@
 package com.reconcileguard.service;
 
 import com.reconcileguard.domain.AuditEvent;
-import com.reconcileguard.domain.EmailVerificationToken;
-import com.reconcileguard.domain.PasswordResetToken;
 import com.reconcileguard.domain.UserAccount;
 import com.reconcileguard.domain.UserRole;
 import com.reconcileguard.dto.AuthTokenResponse;
 import com.reconcileguard.dto.LoginRequest;
-import com.reconcileguard.dto.PasswordResetConfirmRequest;
-import com.reconcileguard.dto.PasswordResetRequest;
 import com.reconcileguard.dto.SignUpRequest;
 import com.reconcileguard.dto.SignUpResponse;
 import com.reconcileguard.dto.UserMeResponse;
 import com.reconcileguard.repository.AuditEventRepository;
-import com.reconcileguard.repository.EmailVerificationTokenRepository;
-import com.reconcileguard.repository.PasswordResetTokenRepository;
 import com.reconcileguard.repository.UserAccountRepository;
 import com.reconcileguard.security.JwtService;
 import com.reconcileguard.security.SecurityProperties;
@@ -36,8 +30,6 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 @Service
 public class AuthService {
     private final UserAccountRepository userAccountRepository;
-    private final EmailVerificationTokenRepository emailVerificationTokenRepository;
-    private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final AuditEventRepository auditEventRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
@@ -45,16 +37,12 @@ public class AuthService {
 
     public AuthService(
             UserAccountRepository userAccountRepository,
-            EmailVerificationTokenRepository emailVerificationTokenRepository,
-            PasswordResetTokenRepository passwordResetTokenRepository,
             AuditEventRepository auditEventRepository,
             PasswordEncoder passwordEncoder,
             JwtService jwtService,
             SecurityProperties securityProperties
     ) {
         this.userAccountRepository = userAccountRepository;
-        this.emailVerificationTokenRepository = emailVerificationTokenRepository;
-        this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.auditEventRepository = auditEventRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
@@ -77,44 +65,17 @@ public class AuthService {
                 passwordEncoder.encode(request.password()),
                 UserRole.OPS
         );
+        user.verifyEmail();
         userAccountRepository.save(user);
-
-        String token = TokenGenerator.urlToken(32);
-        LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(securityProperties.getEmailVerificationTtlMinutes());
-        emailVerificationTokenRepository.save(new EmailVerificationToken(token, user, expiresAt));
 
         auditEventRepository.save(new AuditEvent(
                 email,
                 "AUTH_SIGNUP",
                 userId,
-                "emailVerificationRequired=true"
+                "accountActivated=true"
         ));
 
-        return new SignUpResponse(
-                userId,
-                true,
-                securityProperties.isExposeVerificationToken() ? token : null
-        );
-    }
-
-    @Transactional
-    public void verifyEmail(String token) {
-        EmailVerificationToken verification = emailVerificationTokenRepository.findById(token)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Invalid verification token"));
-        if (!verification.isUsable()) {
-            throw new ResponseStatusException(BAD_REQUEST, "Verification token expired or already used");
-        }
-
-        UserAccount user = verification.getUser();
-        user.verifyEmail();
-        verification.markUsed();
-
-        auditEventRepository.save(new AuditEvent(
-                user.getEmail(),
-                "AUTH_EMAIL_VERIFIED",
-                user.getId(),
-                "verified=true"
-        ));
+        return new SignUpResponse(userId);
     }
 
     @Transactional
@@ -126,10 +87,6 @@ public class AuthService {
                     return new ResponseStatusException(UNAUTHORIZED, "Invalid credentials");
                 });
 
-        if (!user.isEmailVerified()) {
-            auditEventRepository.save(new AuditEvent(user.getEmail(), "AUTH_LOGIN_FAILURE", user.getId(), "reason=EMAIL_NOT_VERIFIED"));
-            throw new ResponseStatusException(UNAUTHORIZED, "Email not verified");
-        }
 
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
             auditEventRepository.save(new AuditEvent(user.getEmail(), "AUTH_LOGIN_FAILURE", user.getId(), "reason=BAD_PASSWORD"));
@@ -162,36 +119,6 @@ public class AuthService {
         return new UserMeResponse(user.getId(), user.getEmail(), user.getFullName(), user.getRole().name());
     }
 
-    @Transactional
-    public String requestPasswordReset(PasswordResetRequest request) {
-        String email = normalizeEmail(request.email());
-        return userAccountRepository.findByEmailIgnoreCase(email)
-                .map(user -> {
-                    String token = TokenGenerator.urlToken(32);
-                    LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(securityProperties.getPasswordResetTtlMinutes());
-                    passwordResetTokenRepository.save(new PasswordResetToken(token, user, expiresAt));
-                    auditEventRepository.save(new AuditEvent(user.getEmail(), "AUTH_PASSWORD_RESET_REQUESTED", user.getId(), "requested=true"));
-                    return token;
-                })
-                .orElseGet(() -> {
-                    auditEventRepository.save(new AuditEvent(email, "AUTH_PASSWORD_RESET_REQUESTED", "AUTH", "requested=true"));
-                    return null;
-                });
-    }
-
-    @Transactional
-    public void confirmPasswordReset(PasswordResetConfirmRequest request) {
-        assertPasswordStrength(request.newPassword());
-        PasswordResetToken reset = passwordResetTokenRepository.findById(request.token())
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Invalid reset token"));
-        if (!reset.isUsable()) {
-            throw new ResponseStatusException(BAD_REQUEST, "Reset token expired or already used");
-        }
-        UserAccount user = reset.getUser();
-        user.updatePasswordHash(passwordEncoder.encode(request.newPassword()));
-        reset.markUsed();
-        auditEventRepository.save(new AuditEvent(user.getEmail(), "AUTH_PASSWORD_RESET_COMPLETED", user.getId(), "reset=true"));
-    }
 
     private static String normalizeEmail(String email) {
         return email == null ? "" : email.trim().toLowerCase(Locale.ROOT);

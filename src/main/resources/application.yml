@@ -43,8 +43,6 @@ reconcileguard:
   security:
     jwt-secret: ${RG_JWT_SECRET:change-this-secret-to-at-least-32-characters}
     token-ttl-minutes: ${RG_TOKEN_TTL_MINUTES:480}
-    email-verification-ttl-minutes: ${RG_EMAIL_VERIFICATION_TTL_MINUTES:60}
-    password-reset-ttl-minutes: ${RG_PASSWORD_RESET_TTL_MINUTES:30}
     expose-verification-token: ${RG_EXPOSE_VERIFICATION_TOKEN:true}
   rate-limit:
     per-minute: ${RG_RATE_LIMIT_PER_MINUTE:120}

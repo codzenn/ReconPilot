@@ -48,8 +48,8 @@ export function LandingPage() {
         <section className="grid-3">
           {[
             {
-              title: "Verified access",
-              body: "Email verification and explicit session handling keep entry controlled."
+              title: "Secure access",
+              body: "Strong credentials and explicit session handling keep entry controlled."
             },
             {
               title: "Operational clarity",
@@ -73,13 +73,13 @@ export function LandingPage() {
           <div style={{ display: "grid", gap: 10, maxWidth: 820 }}>
             <strong style={{ fontSize: 20, letterSpacing: "-0.05em" }}>Get started in three steps</strong>
             <p className="help" style={{ margin: 0 }}>
-              Create an account, verify your email, then sign in and open the workspace when you are ready.
+              Create an account, sign in, and open the workspace when you are ready.
             </p>
           </div>
           <div className="grid-3 tight">
             {[
               { step: "01", title: "Create account", body: "Use a work email and a strong password." },
-              { step: "02", title: "Verify email", body: "Confirm the address before first access." },
+              { step: "02", title: "Sign in", body: "Use the credentials you just created." },
               { step: "03", title: "Open workspace", body: "Enter the dashboard without surprise redirects." }
             ].map((item) => (
               <div

@@ -124,14 +124,6 @@ export function SignInPage() {
                 />
               </div>
 
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-                <Link className="btn btn-link" to="/reset">
-                  Forgot password?
-                </Link>
-                <Link className="btn btn-link" to="/verify">
-                  Verify email
-                </Link>
-              </div>
 
               <button className="btn btn-primary" type="submit" disabled={!canSubmit}>
                 {busy ? "Signing in…" : "Sign in"}

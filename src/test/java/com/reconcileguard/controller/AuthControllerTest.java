@@ -17,8 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(properties = {
         "spring.datasource.url=jdbc:h2:mem:auth-test;MODE=Oracle;DB_CLOSE_DELAY=-1",
         "spring.datasource.username=sa",
-        "spring.datasource.password=",
-        "reconcileguard.security.expose-verification-token=true"
+        "spring.datasource.password="
 })
 @AutoConfigureMockMvc
 class AuthControllerTest {
@@ -29,7 +28,7 @@ class AuthControllerTest {
     ObjectMapper objectMapper;
 
     @Test
-    void signUpVerifyLoginAndAccessProtectedApi() throws Exception {
+    void signUpLoginAndAccessProtectedApi() throws Exception {
         String signUpBody = """
                 {
                   "fullName": "Demo Operator",
@@ -43,18 +42,13 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(signUpBody))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.emailVerificationRequired").value(true))
-                .andExpect(jsonPath("$.verificationToken").isNotEmpty())
+                .andExpect(jsonPath("$.userId").isNotEmpty())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
 
-        String verificationToken = objectMapper.readTree(signUpResponse).get("verificationToken").asText();
-        assertThat(verificationToken).isNotBlank();
-
-        mockMvc.perform(get("/api/auth/verify").param("token", verificationToken))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.verified").value(true));
+        String userId = objectMapper.readTree(signUpResponse).get("userId").asText();
+        assertThat(userId).isNotBlank();
 
         String loginBody = """
                 { "email": "demo@reconpilot.dev", "password": "StrongPass1!" }

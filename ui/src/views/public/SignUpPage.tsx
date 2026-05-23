@@ -4,8 +4,6 @@ import { apiFetch, ApiError } from "../../lib/api";
 
 type SignUpResponse = {
   userId: string;
-  emailVerificationRequired: boolean;
-  verificationToken?: string | null;
 };
 
 function strengthScore(password: string) {
@@ -78,12 +76,7 @@ export function SignUpPage() {
         })
       });
 
-      if (response.verificationToken) {
-        navigate(`/verify?token=${encodeURIComponent(response.verificationToken)}`);
-        return;
-      }
-
-      setNote("Account created. Check your email for the verification link, then sign in.");
+      setNote(`Account created for ${response.userId}. You can sign in now.`);
       setPassword("");
       setConfirm("");
     } catch (e) {
@@ -119,7 +112,7 @@ export function SignUpPage() {
             </div>
             <h1 style={{ margin: 0, fontSize: 34, letterSpacing: "-0.06em" }}>Sign up</h1>
             <p className="help" style={{ margin: 0 }}>
-              Email verification is required before first sign-in.
+              Create your account to access the workspace right away.
             </p>
           </div>
 
@@ -213,7 +206,7 @@ export function SignUpPage() {
                 style={{ width: 18, height: 18, marginTop: 3 }}
               />
               <span className="help" style={{ color: "var(--text-2)" }}>
-                I agree to the Terms of Service and understand email verification is required.
+                I agree to the Terms of Service and accept the platform access policy.
               </span>
             </label>
 
@@ -229,8 +222,8 @@ export function SignUpPage() {
             </div>
 
             <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-              <Link className="btn btn-link" to="/verify">
-                Verify email
+              <Link className="btn btn-link" to="/signin">
+                Go to sign in
               </Link>
               <Link className="btn btn-link" to="/">
                 Back to landing page

@@ -6,8 +6,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class SecurityProperties {
     private String jwtSecret = "change-this-secret-to-at-least-32-characters";
     private long tokenTtlMinutes = 480;
-    private long emailVerificationTtlMinutes = 60;
-    private long passwordResetTtlMinutes = 30;
     private boolean exposeVerificationToken = true;
 
     public String getJwtSecret() {
@@ -26,21 +24,7 @@ public class SecurityProperties {
         this.tokenTtlMinutes = tokenTtlMinutes;
     }
 
-    public long getEmailVerificationTtlMinutes() {
-        return emailVerificationTtlMinutes;
-    }
 
-    public void setEmailVerificationTtlMinutes(long emailVerificationTtlMinutes) {
-        this.emailVerificationTtlMinutes = emailVerificationTtlMinutes;
-    }
-
-    public long getPasswordResetTtlMinutes() {
-        return passwordResetTtlMinutes;
-    }
-
-    public void setPasswordResetTtlMinutes(long passwordResetTtlMinutes) {
-        this.passwordResetTtlMinutes = passwordResetTtlMinutes;
-    }
 
     public boolean isExposeVerificationToken() {
         return exposeVerificationToken;

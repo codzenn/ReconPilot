@@ -5,12 +5,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 public class SpaForwardController {
-    @RequestMapping({
+ @RequestMapping({
             "/signin",
             "/signup",
             "/verify",
-            "/reset",
-            "/reset/**",
             "/app",
             "/app/**"
     })
